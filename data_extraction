@@ -1,0 +1,28 @@
+import pandas as pd
+from config import *
+
+
+def load_reg(registru, sheet):
+
+    df = pd.read_excel(registru["path"], sheet_name=sheet, header=None, engine='openpyxl')
+    header_index = df[df.apply(lambda row: row.astype(str).str.contains(registru["ID"]).any(), axis=1)].index[0]
+    df = pd.read_excel(registru["path"], sheet_name=sheet, header=header_index, engine='openpyxl')
+    return df
+
+def registry_monitoring(*args):
+    monthly_registries =[]
+    for arg in args:
+        print(arg["city"])
+        
+        for sheet in arg["monthly_attendance"]:
+            df = load_reg(arg, sheet)
+            df.fillna(0)
+            monthly_registries.append([sheet,df])
+
+        for registry in monthly_registries:
+            print("\n")
+            print(registry[0])
+            for activity in arg["activities"]:
+                print(f"Activity - {activity} = {sheet[1][activity].apply(lambda x: 1 if x > 0 else x).sum()}")
+
+registry_monitoring(register1, register2)
