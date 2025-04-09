@@ -1,28 +1,41 @@
 import pandas as pd
-from config import *
+from datetime import datetime
+from config import register1, register2
 
 
 def load_reg(registru, sheet):
-
     df = pd.read_excel(registru["path"], sheet_name=sheet, header=None, engine='openpyxl')
-    header_index = df[df.apply(lambda row: row.astype(str).str.contains(registru["ID"]).any(), axis=1)].index[0]
+    header_index = df[df.apply(lambda row: row.astype(str).str.contains(registru["nume"]).any(), axis=1)].index[0]
     df = pd.read_excel(registru["path"], sheet_name=sheet, header=header_index, engine='openpyxl')
     return df
 
-def registry_monitoring(*args):
-    monthly_registries =[]
+def attendance_to_person(coloana_activitate):
+    return coloana_activitate.apply(lambda x: 1 if x > 0 else x).sum().item()
+
+def monitorizare_registre(*args):
+    gender_age = ["g", "b", "W", "M"] #girls, boys, Women, Men
     for arg in args:
-        print(arg["city"])
-        
-        for sheet in arg["monthly_attendance"]:
-            df = load_reg(arg, sheet)
+        cataloage_lunare=[]
+        for cat in arg["cataloage"]:
+            df = load_reg(arg, cat)
             df.fillna(0)
-            monthly_registries.append([sheet,df])
+            cataloage_lunare.append([cat,df])
 
-        for registry in monthly_registries:
-            print("\n")
-            print(registry[0])
-            for activity in arg["activities"]:
-                print(f"Activity - {activity} = {sheet[1][activity].apply(lambda x: 1 if x > 0 else x).sum()}")
+        for catalog in cataloage_lunare:
+            with open(f'raport_activitati_lunare_{arg["oras"]}.txt', 'a', encoding="utf-8") as log_file:
+                log_file.write(f'\n{datetime.now().strftime("%Y-%m-%d %H:%M")}')
+                log_file.write(f'\n{catalog[0]}\n')
+                cataloage_gen = []
+                for g_a in gender_age:
+                    cataloage_gen.append(catalog[1][catalog[1][arg["gen"]]== g_a])
+                for activitate in arg["activitati"]:
+                    total = attendance_to_person(catalog[1][activitate])
+                    log_file.write(f"{activitate} = {total} total")
+                    if total > 0:
+                        gender_dissagregation = [(attendance_to_person(catalog[activitate]), gen) for catalog, gen in zip(cataloage_gen, gender_age)]
+                        gender_dissagregation = ', '.join([f"{num} {char}" for num, char in gender_dissagregation])
+                        log_file.write(f"({gender_dissagregation})\n")
+                    else:
+                        log_file.write("\n")
 
-registry_monitoring(register1, register2)
+monitorizare_registre(register1, register2)
