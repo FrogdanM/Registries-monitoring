@@ -22,10 +22,21 @@ cataloage = [
 register1 = {
         "path":"path\\file.xlsx",
         "nume":"Nume/prenume", 
-        "gen": "Dezagregare Gen si Varsta (W=woman, M=man, g=girl, b=boy)",
+        "gen": "Dezagregare Gen si Varsta",
         "reg":"Registru Activitati",
-        "registru" : "",
+        "registru" : "Bucuresti - 2025",
         "cataloage":cataloage,
         "activitati":activitati,
         "oras": "Bucuresti"
+      }
+
+register2 = {
+        "path":"path\\file.xlsx",
+        "nume":"Nume/prenume", 
+        "gen": "Dezagregare Gen si Varsta",
+        "reg":"Registru Activitati",
+        "registru" : "Timisoara - 2025",
+        "cataloage":cataloage,
+        "activitati":activitati,
+        "oras": "Timisoara"
       }
